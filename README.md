@@ -38,4 +38,3 @@ This extension is set as the **default editor** for all supported formats. Simpl
 ## 📜 License
 
 MIT
-# Universal-File-Editor
