@@ -1,0 +1,110 @@
+:root {
+    --bg-color: #ffffff;
+    --text-color: #333333;
+    --border-color: #e0e0e0;
+    --accent-color: #1a73e8;
+    --glass-bg: rgba(255, 255, 255, 0.7);
+    --toolbar-height: 50px;
+}
+
+body.vscode-dark {
+    --bg-color: #1e1e1e;
+    --text-color: #cccccc;
+    --border-color: #3c3c3c;
+    --accent-color: #007acc;
+    --glass-bg: rgba(30, 30, 30, 0.7);
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    overflow: hidden;
+}
+
+.glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border-color);
+}
+
+#toolbar {
+    height: var(--toolbar-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    gap: 10px;
+}
+
+#toolbar button {
+    background: var(--accent-color);
+    color: white;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+
+#toolbar button:hover {
+    filter: brightness(1.1);
+}
+
+#searchBox {
+    background: transparent;
+    border: 1px solid var(--border-color);
+    color: var(--text-color);
+    padding: 6px 12px;
+    border-radius: 20px;
+    outline: none;
+}
+
+#grid-container {
+    height: calc(100vh - var(--toolbar-height));
+    overflow: auto;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+    table-layout: fixed;
+}
+
+th, td {
+    border: 1px solid var(--border-color);
+    padding: 8px;
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 100px;
+}
+
+th {
+    background-color: var(--bg-color);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    font-weight: bold;
+}
+
+td:focus {
+    outline: 2px solid var(--accent-color);
+    background-color: rgba(26, 115, 232, 0.1);
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#spreadsheet-grid {
+    animation: fadeIn 0.5s ease-out;
+}
