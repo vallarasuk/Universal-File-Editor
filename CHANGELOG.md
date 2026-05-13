@@ -2,6 +2,12 @@
 
 All notable changes to the "Universal Spreadsheet & Markdown Editor" extension will be documented in this file.
 
+## [0.0.3] - 2026-05-13
+
+### Added
+
+- New premium extension icon with glassmorphism design.
+
 ## [0.0.2] - 2026-05-13
 
 ### Fixed

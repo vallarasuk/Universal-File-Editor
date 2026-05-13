@@ -2,8 +2,9 @@
   "name": "universal-spreadsheet-markdown-editor",
   "displayName": "Universal Spreadsheet & Markdown Editor (XLSX, CSV, TSV)",
   "description": "Unified spreadsheet and markdown editor for XLSX, CSV, TSV, and Markdown files with premium design and Google Sheets-style editing.",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "publisher": "VallarasuKanthasamy",
+  "icon": "media/icon.png",
   "license": "MIT",
   "repository": {
     "type": "git",
