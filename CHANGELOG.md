@@ -1,34 +1,44 @@
 # Changelog
 
-All notable changes to the "Universal Spreadsheet & Markdown Editor" extension will be documented in this file.
-
-## [0.0.3] - 2026-05-13
+## [0.0.4] - 2026-05-14
 
 ### Added
 
-- New premium extension icon with glassmorphism design.
-
-## [0.0.2] - 2026-05-13
+- Add Row and Add Column functionality to Spreadsheet Editor.
+- Delete Row and Delete Column support for Spreadsheet Editor.
+- Strikethrough, Headings, and List formatting to Markdown Editor.
+- GFM (GitHub Flavored Markdown) support via turndown plugin.
 
 ### Fixed
 
-- Excluded `.env` and sensitive files from the production package.
-- Improved JSON parsing for single objects and primitive arrays.
-- Enhanced Premium Text Viewer with a new glassmorphism design.
-- Fixed markdown formatting lints in README.
+- Fixed ExcelJS 1-indexed row value bug in XLSX files.
+- Improved binary data handling for XLSX files using vscode.workspace.fs.
+- Fixed cursor jumping issue in Markdown Editor during auto-save.
+- Resolved security vulnerabilities in `fast-xml-parser` and `markdown-it`.
+
+### Improved
+
+- Premium UI overhaul with enhanced glassmorphism and animations.
+- Better typography and interaction states across all editors.
+- Robust parsing for nested JSON, YAML, and XML structures.
+
+## [0.0.3] - 2026-05-13
+
+### Release Highlights
+
+- Premium Text Viewer with glassmorphism design.
+- Support for JSONL files.
+- Version 0.0.3 release with optimized icons.
+
+## [0.0.2] - 2026-05-13
+
+### Initial Features
+
+- Initial support for XML and YAML files.
+- Spreadsheet-style editing for structured data.
 
 ## [0.0.1] - 2026-05-13
 
-### Initial Release
+### Genesis
 
-- **Unified Spreadsheet Engine**: Support for `.xlsx`, `.csv`, `.tsv`, `.json`, `.jsonl`, `.xml`, and `.yaml`.
-- **Advanced Markdown Editor**: Integrated `markdown-it` with `KaTex` support and preview-to-source editing.
-- **Universal Media Viewer**: High-fidelity previews for `.svg`, `.png`, `.jpg`, `.jpeg`, `.gif`, `.webp`, `.bmp`, and `.ico`.
-- **Premium Text Viewer**: A glassmorphism-styled fallback editor for all other file types (`.txt`, `.log`, `.conf`, etc.).
-- **Native Experience**:
-  - Full **Undo/Redo (Ctrl+Z)** support via real-time document synchronization.
-  - Set as the **default editor** for all supported formats.
-- **Production Ready**:
-  - Automated dual-market publishing script (`publish.sh`).
-  - Optimized package size via `.vscodeignore`.
-  - Integrated local testing configurations.
+- Initial release with support for XLSX, CSV, TSV, and Markdown.

@@ -70,13 +70,27 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel.webview.onDidReceiveMessage(async e => {
             switch (e.type) {
                 case 'save':
-                    const TurndownService = require('turndown');
-                    const turndownService = new TurndownService();
-                    const markdown = turndownService.turndown(e.content);
-                    
-                    const edit = new vscode.WorkspaceEdit();
-                    edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), markdown);
-                    await vscode.workspace.applyEdit(edit);
+                    try {
+                        const TurndownService = require('turndown');
+                        const turndownService = new TurndownService({
+                            headingStyle: 'atx',
+                            hr: '---',
+                            bulletListMarker: '-',
+                            codeBlockStyle: 'fenced'
+                        });
+                        
+                        // Add plugins for better GFM support
+                        const turndownPluginGfm = require('joplin-turndown-plugin-gfm');
+                        turndownService.use(turndownPluginGfm.gfm);
+
+                        const markdown = turndownService.turndown(e.content);
+                        
+                        const edit = new vscode.WorkspaceEdit();
+                        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), markdown);
+                        await vscode.workspace.applyEdit(edit);
+                    } catch (err: any) {
+                        vscode.window.showErrorMessage(`Failed to save markdown: ${err.message}`);
+                    }
                     break;
             }
         });
@@ -107,9 +121,23 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             </head>
             <body>
                 <div id="toolbar" class="glass">
-                    <button id="boldBtn"><b>B</b></button>
-                    <button id="italicBtn"><i>I</i></button>
-                    <button id="saveBtn">Save</button>
+                    <div class="group">
+                        <button id="h1Btn">H1</button>
+                        <button id="h2Btn">H2</button>
+                        <button id="h3Btn">H3</button>
+                    </div>
+                    <div class="group">
+                        <button id="boldBtn" title="Bold"><b>B</b></button>
+                        <button id="italicBtn" title="Italic"><i>I</i></button>
+                        <button id="strikeBtn" title="Strikethrough"><strike>S</strike></button>
+                    </div>
+                    <div class="group">
+                        <button id="listBtn" title="Bullet List">• List</button>
+                        <button id="numListBtn" title="Numbered List">1. List</button>
+                        <button id="codeBtn" title="Code Block">Code</button>
+                    </div>
+                    <div class="spacer"></div>
+                    <button id="saveBtn" class="primary">Save</button>
                 </div>
                 <div id="editor-container">
                     <div id="preview" class="markdown-body"></div>
@@ -120,3 +148,4 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         `;
     }
 }
+
