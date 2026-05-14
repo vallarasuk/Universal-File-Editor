@@ -180,13 +180,22 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                 return;
             }
 
+            const fs = require('fs');
+            const stats = fs.statSync(document.uri.fsPath);
+            const fileSize = (stats.size / 1024).toFixed(2) + ' KB';
+
             webviewPanel.webview.postMessage({
                 type: 'update',
                 data: data,
                 raw: document.getText(),
                 filename: path.basename(document.uri.fsPath),
                 originalFormat: originalFormat,
-                info: { type: detectedType, rows: data.length > 0 ? data.length - 1 : 0 }
+                info: { 
+                    type: detectedType, 
+                    rows: data.length > 0 ? data.length - 1 : 0,
+                    size: fileSize,
+                    name: path.basename(document.uri.fsPath)
+                }
             });
         }
 
@@ -360,6 +369,9 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
         const qrUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'media', 'support_qr.png')
         ));
+        const overviewBannerUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'media', 'overview_banner.png')
+        ));
 
         return `
             <!DOCTYPE html>
@@ -395,6 +407,7 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                     <div class="spacer"></div>
                     
                     <div class="toolbar-group">
+                        <button id="overviewBtn" title="File Overview">ℹ️ Overview</button>
                         <button id="formatBtn" title="Beautify/Format Source">Format</button>
                         <button id="copyBtn">Copy</button>
                         <button id="supportBtn" class="support-heart" title="Support the Developer">❤️</button>
@@ -420,7 +433,7 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                         <h2>Support the Developer</h2>
                         <p>If you find this extension helpful, consider supporting the developer!</p>
                         <div class="upi-info">
-                            <strong>UPI ID:</strong> <span>vallarasuk143@pingpay</span>
+                            <strong>UPI ID:</strong> <span id="upiId">vallarasuk143@pingpay</span>
                             <button id="copyUpi" class="small-btn">Copy</button>
                         </div>
                         <div class="qr-container">
@@ -428,6 +441,34 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                             <p class="qr-label">Scan to support via UPI</p>
                         </div>
                         <button class="modal-close-btn">Close</button>
+                    </div>
+                </div>
+
+                <!-- Overview Modal -->
+                <div id="overviewModal" class="modal hidden">
+                    <div class="modal-content glass overview-modal">
+                        <button class="close-modal">×</button>
+                        <div class="overview-banner" style="background-image: url('${overviewBannerUri}')"></div>
+                        <h2>File Overview</h2>
+                        <div class="overview-grid">
+                            <div class="overview-item">
+                                <label>File Name</label>
+                                <span id="ov-filename">-</span>
+                            </div>
+                            <div class="overview-item">
+                                <label>File Type</label>
+                                <span id="ov-type">-</span>
+                            </div>
+                            <div class="overview-item">
+                                <label>File Size</label>
+                                <span id="ov-size">-</span>
+                            </div>
+                            <div class="overview-item">
+                                <label>Row Count</label>
+                                <span id="ov-rows">-</span>
+                            </div>
+                        </div>
+                        <button class="modal-close-btn">Done</button>
                     </div>
                 </div>
 

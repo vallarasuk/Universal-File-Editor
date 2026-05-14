@@ -35,6 +35,11 @@
                 if (document.activeElement !== preview) {
                     preview.innerHTML = message.content;
                 }
+                if (message.info) {
+                    document.getElementById('ov-filename').textContent = message.info.name;
+                    document.getElementById('ov-size').textContent = message.info.size;
+                    document.getElementById('ov-lines').textContent = message.info.lines;
+                }
                 break;
         }
     });
@@ -66,19 +71,27 @@
 })();
 
 
-// Support Modal Logic
+// Support & Overview Modal Logic
 const supportBtn = document.getElementById('supportBtn');
 const supportModal = document.getElementById('supportModal');
-const closeModal = supportModal.querySelector('.close-modal');
-const modalCloseBtn = supportModal.querySelector('.modal-close-btn');
+const overviewBtn = document.getElementById('overviewBtn');
+const overviewModal = document.getElementById('overviewModal');
 const copyUpi = document.getElementById('copyUpi');
 
-if (supportBtn) {
-    supportBtn.onclick = () => supportModal.classList.remove('hidden');
-    closeModal.onclick = () => supportModal.classList.add('hidden');
-    modalCloseBtn.onclick = () => supportModal.classList.add('hidden');
+function setupModal(modal, btn) {
+    if (!modal || !btn) return;
+    const closeBtns = modal.querySelectorAll('.close-modal, .modal-close-btn');
+    btn.onclick = () => modal.classList.remove('hidden');
+    closeBtns.forEach(b => b.onclick = () => modal.classList.add('hidden'));
+}
+
+setupModal(supportModal, supportBtn);
+setupModal(overviewModal, overviewBtn);
+
+if (copyUpi) {
     copyUpi.onclick = () => {
-        navigator.clipboard.writeText('vallarasuk143@pingpay');
+        const upiText = document.getElementById('upiId').textContent;
+        navigator.clipboard.writeText(upiText);
         copyUpi.textContent = 'Copied!';
         setTimeout(() => copyUpi.textContent = 'Copy', 2000);
     };

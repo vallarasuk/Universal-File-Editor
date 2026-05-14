@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.2] - 2026-05-14
+
+### Added
+
+- **File Overview Dashboard**: New feature to view file details (name, size, type, row/line count) in a premium modal.
+- **Visual Enhancements**: Integrated a sleek overview banner and improved modal typography.
+
+### Fixed
+
+- **UPI QR Code**: Replaced broken QR code with a valid UPI URI encoded image for reliable contributions.
+- **UPID Synchronization**: Ensure the UPI ID is correctly displayed and copyable in the support modal.
+
 ## [0.1.1] - 2026-05-14
 
 ### Added

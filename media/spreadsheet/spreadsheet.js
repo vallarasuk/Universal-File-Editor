@@ -43,6 +43,12 @@
                 if (message.info) {
                     document.getElementById('format-tag').textContent = message.info.type;
                     document.getElementById('row-count').textContent = `${message.info.rows} rows`;
+                    
+                    // Populate Overview
+                    document.getElementById('ov-filename').textContent = message.info.name;
+                    document.getElementById('ov-type').textContent = message.info.type;
+                    document.getElementById('ov-size').textContent = message.info.size;
+                    document.getElementById('ov-rows').textContent = message.info.rows;
                 }
                 break;
             case 'error':
@@ -178,15 +184,28 @@
         setTimeout(() => copyBtn.textContent = 'Copy', 2000);
     };
 
-    // Support Modal Actions
-    supportBtn.onclick = () => supportModal.classList.remove('hidden');
-    closeModal.onclick = () => supportModal.classList.add('hidden');
-    modalCloseBtn.onclick = () => supportModal.classList.add('hidden');
-    copyUpi.onclick = () => {
-        navigator.clipboard.writeText('vallarasuk143@pingpay');
-        copyUpi.textContent = 'Copied!';
-        setTimeout(() => copyUpi.textContent = 'Copy', 2000);
-    };
+    // Support & Overview Modal Logic
+    const overviewBtn = document.getElementById('overviewBtn');
+    const overviewModal = document.getElementById('overviewModal');
+
+    function setupModal(modal, btn) {
+        if (!modal || !btn) return;
+        const closeBtns = modal.querySelectorAll('.close-modal, .modal-close-btn');
+        btn.onclick = () => modal.classList.remove('hidden');
+        closeBtns.forEach(b => b.onclick = () => modal.classList.add('hidden'));
+    }
+
+    setupModal(supportModal, supportBtn);
+    setupModal(overviewModal, overviewBtn);
+
+    if (copyUpi) {
+        copyUpi.onclick = () => {
+            const upiText = document.getElementById('upiId').textContent;
+            navigator.clipboard.writeText(upiText);
+            copyUpi.textContent = 'Copied!';
+            setTimeout(() => copyUpi.textContent = 'Copy', 2000);
+        };
+    }
 
     // Conversion Logic
     convertSelect.onchange = () => {

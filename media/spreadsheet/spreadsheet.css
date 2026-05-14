@@ -376,4 +376,62 @@ td:focus {
     border-radius: 12px;
     font-weight: 700;
     cursor: pointer;
+    transition: background 0.2s;
+}
+
+.modal-close-btn:hover {
+    background: var(--accent-hover);
+}
+
+/* Overview Modal Specifics */
+.overview-modal {
+    width: 450px;
+    padding: 0;
+    overflow: hidden;
+}
+
+.overview-banner {
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+    width: 100%;
+}
+
+.overview-modal h2 {
+    margin: 20px 0 10px 0;
+}
+
+.overview-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    padding: 20px;
+    text-align: left;
+}
+
+.overview-item {
+    background: rgba(255,255,255,0.03);
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.05);
+}
+
+.overview-item label {
+    display: block;
+    font-size: 11px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+    font-weight: 700;
+}
+
+.overview-item span {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-color);
+}
+
+.overview-modal .modal-close-btn {
+    width: calc(100% - 40px);
+    margin: 0 20px 20px 20px;
 }
