@@ -183,6 +183,7 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
             webviewPanel.webview.postMessage({
                 type: 'update',
                 data: data,
+                raw: document.getText(),
                 filename: path.basename(document.uri.fsPath),
                 originalFormat: originalFormat,
                 info: { type: detectedType, rows: data.length > 0 ? data.length - 1 : 0 }
@@ -203,6 +204,17 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
             switch (e.type) {
                 case 'ready':
                     updateWebview();
+                    break;
+                case 'saveRaw':
+                    try {
+                        const content = e.content;
+                        const edit = new vscode.WorkspaceEdit();
+                        edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), content);
+                        await vscode.workspace.applyEdit(edit);
+                        vscode.window.showInformationMessage('File saved successfully.');
+                    } catch (err: any) {
+                        vscode.window.showErrorMessage(`Failed to save raw content: ${err.message}`);
+                    }
                     break;
                 case 'save':
                     try {
@@ -330,17 +342,36 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
             </head>
             <body>
                 <div id="toolbar" class="glass">
-                    <button id="saveBtn" class="primary">Save</button>
+                    <div class="toolbar-group">
+                        <button id="saveBtn" class="primary" title="Save Changes (Ctrl+S)">Save</button>
+                        <div class="view-toggle">
+                            <button id="gridModeBtn" class="active" title="Switch to Grid View">Grid</button>
+                            <button id="rawModeBtn" title="Switch to Raw View">Raw</button>
+                        </div>
+                    </div>
+                    
                     <input type="text" id="searchBox" placeholder="Search data...">
+                    
                     <div class="spacer"></div>
-                    <div id="status-info">
-                        <span id="format-tag"></span>
-                        <span id="row-count"></span>
+                    
+                    <div class="toolbar-group">
+                        <button id="formatBtn" title="Beautify/Format Source">Format</button>
+                        <button id="copyBtn" title="Copy Content to Clipboard">Copy</button>
+                        <div id="status-info">
+                            <span id="format-tag"></span>
+                            <span id="row-count"></span>
+                        </div>
                     </div>
                 </div>
-                <div id="grid-container">
+
+                <div id="grid-container" class="view-panel">
                     <table id="spreadsheet-grid"></table>
                 </div>
+
+                <div id="raw-container" class="view-panel hidden">
+                    <textarea id="raw-editor" spellcheck="false"></textarea>
+                </div>
+
                 <script src="${scriptUri}"></script>
             </body>
             </html>

@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.1.0] - 2026-05-14
+
+### Added
+
+- **Dual-Mode Editor**: Seamlessly toggle between "Grid View" and "Raw View".
+- **Raw Code Editor**: Edit JSON, YAML, XML, and CSV directly in a premium monospaced editor.
+- **Format Tool**: Beautify/Format JSON and XML source code with one click.
+- **Clipboard Integration**: New "Copy" button to quickly copy the entire file content.
+- **Status Dashboard**: Real-time display of detected file format and row count in the toolbar.
+- **Premium Glassmorphism 2.0**: Rebuilt UI with enhanced blur effects, better typography, and interactive row/column highlights.
+
+### Improved
+
+- Complete rebuild of the webview logic for better performance and stability.
+- Robust XML parsing that handles nested structures more reliably.
+- Better synchronization between the extension backend and the webview UI.
+
 ## [0.0.5] - 2026-05-14
 
 ### Fixed
