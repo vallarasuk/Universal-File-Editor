@@ -2,7 +2,7 @@
   "name": "universal-spreadsheet-markdown-editor",
   "displayName": "Universal Spreadsheet & Markdown Editor (XLSX, CSV, TSV)",
   "description": "Unified spreadsheet and markdown editor for XLSX, CSV, TSV, and Markdown files with premium design and Google Sheets-style editing.",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "publisher": "VallarasuKanthasamy",
   "icon": "media/icon.png",
   "license": "MIT",
@@ -26,14 +26,30 @@
         "viewType": "xlsxViewer.spreadsheetEditor",
         "displayName": "Spreadsheet & Structured Data Editor",
         "selector": [
-          { "filenamePattern": "*.xlsx" },
-          { "filenamePattern": "*.csv" },
-          { "filenamePattern": "*.tsv" },
-          { "filenamePattern": "*.json" },
-          { "filenamePattern": "*.jsonl" },
-          { "filenamePattern": "*.xml" },
-          { "filenamePattern": "*.yaml" },
-          { "filenamePattern": "*.yml" }
+          {
+            "filenamePattern": "*.xlsx"
+          },
+          {
+            "filenamePattern": "*.csv"
+          },
+          {
+            "filenamePattern": "*.tsv"
+          },
+          {
+            "filenamePattern": "*.json"
+          },
+          {
+            "filenamePattern": "*.jsonl"
+          },
+          {
+            "filenamePattern": "*.xml"
+          },
+          {
+            "filenamePattern": "*.yaml"
+          },
+          {
+            "filenamePattern": "*.yml"
+          }
         ],
         "priority": "default"
       },
@@ -41,14 +57,30 @@
         "viewType": "xlsxViewer.mediaViewer",
         "displayName": "Universal Media Viewer",
         "selector": [
-          { "filenamePattern": "*.svg" },
-          { "filenamePattern": "*.png" },
-          { "filenamePattern": "*.jpg" },
-          { "filenamePattern": "*.jpeg" },
-          { "filenamePattern": "*.gif" },
-          { "filenamePattern": "*.webp" },
-          { "filenamePattern": "*.bmp" },
-          { "filenamePattern": "*.ico" }
+          {
+            "filenamePattern": "*.svg"
+          },
+          {
+            "filenamePattern": "*.png"
+          },
+          {
+            "filenamePattern": "*.jpg"
+          },
+          {
+            "filenamePattern": "*.jpeg"
+          },
+          {
+            "filenamePattern": "*.gif"
+          },
+          {
+            "filenamePattern": "*.webp"
+          },
+          {
+            "filenamePattern": "*.bmp"
+          },
+          {
+            "filenamePattern": "*.ico"
+          }
         ],
         "priority": "default"
       },
@@ -56,11 +88,21 @@
         "viewType": "xlsxViewer.textViewer",
         "displayName": "Premium Text Viewer",
         "selector": [
-          { "filenamePattern": "*.txt" },
-          { "filenamePattern": "*.log" },
-          { "filenamePattern": "*.conf" },
-          { "filenamePattern": "*.ini" },
-          { "filenamePattern": "*" }
+          {
+            "filenamePattern": "*.txt"
+          },
+          {
+            "filenamePattern": "*.log"
+          },
+          {
+            "filenamePattern": "*.conf"
+          },
+          {
+            "filenamePattern": "*.ini"
+          },
+          {
+            "filenamePattern": "*"
+          }
         ],
         "priority": "option"
       },
@@ -68,9 +110,15 @@
         "viewType": "xlsxViewer.markdownEditor",
         "displayName": "Markdown Editor",
         "selector": [
-          { "filenamePattern": "*.md" },
-          { "filenamePattern": "*.markdown" },
-          { "filenamePattern": "README.md" }
+          {
+            "filenamePattern": "*.md"
+          },
+          {
+            "filenamePattern": "*.markdown"
+          },
+          {
+            "filenamePattern": "README.md"
+          }
         ],
         "priority": "default"
       }
@@ -123,16 +171,17 @@
     "@vscode/test-electron": "^2.2.3",
     "eslint": "^8.34.0",
     "ovsx": "^0.8.0",
+    "ts-node": "^10.9.1",
     "typescript": "^4.9.5",
-    "vsce": "^2.15.0",
-    "ts-node": "^10.9.1"
+    "vsce": "^2.15.0"
   },
   "dependencies": {
     "exceljs": "^4.3.0",
-    "fast-xml-parser": "^4.5.6",
+    "fast-xml-parser": "^5.8.0",
+    "joplin-turndown-plugin-gfm": "^1.0.12",
     "js-yaml": "^4.1.1",
     "katex": "^0.16.4",
-    "markdown-it": "^13.0.1",
+    "markdown-it": "^14.1.1",
     "papaparse": "^5.3.2",
     "turndown": "^7.2.4"
   }

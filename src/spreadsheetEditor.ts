@@ -1,6 +1,5 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import * as fs from 'fs';
 import * as ExcelJS from 'exceljs';
 import * as Papa from 'papaparse';
 import * as yaml from 'js-yaml';
@@ -34,97 +33,159 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
         webviewPanel.webview.html = this.getHtmlForWebview(webviewPanel.webview);
 
         async function updateWebview() {
-            const content = document.getText();
             const ext = path.extname(document.uri.fsPath).toLowerCase();
             let data: any[][] = [];
+            let originalFormat: 'array' | 'object' | 'primitive' = 'array';
+            let detectedType = ext.substring(1).toUpperCase();
 
-            if (ext === '.csv' || ext === '.tsv') {
-                const results = Papa.parse(content, { delimiter: ext === '.tsv' ? '\t' : ',' });
-                data = results.data as any[][];
-            } else if (ext === '.xlsx') {
-                // For XLSX we read as binary, but this is a TextEditorProvider
-                // Wait, XLSX should probably use CustomEditorProvider (binary)
-                // But the user's description says unified provider.
-                // If it's a TextEditorProvider, document.getText() won't work for binary XLSX.
-                // I'll handle binary reading separately if needed.
-                const buffer: any = fs.readFileSync(document.uri.fsPath);
-                const workbook = new ExcelJS.Workbook();
-                await workbook.xlsx.load(buffer);
-                const worksheet = workbook.getWorksheet(1);
-                worksheet?.eachRow((row, _rowNumber) => {
-                    data.push(row.values as any[]);
-                });
-            } else if (ext === '.json' || ext === '.jsonl') {
-                try {
-                    let parsed;
-                    if (ext === '.jsonl') {
-                        parsed = content.split('\n').filter(line => line.trim()).map(line => JSON.parse(line));
+            try {
+                if (ext === '.csv' || ext === '.tsv') {
+                    const content = document.getText();
+                    const results = Papa.parse(content, { delimiter: ext === '.tsv' ? '\t' : ',', skipEmptyLines: 'greedy' });
+                    data = results.data as any[][];
+                    detectedType = ext === '.tsv' ? 'TSV' : 'CSV';
+                } else if (ext === '.xlsx') {
+                    const buffer = await vscode.workspace.fs.readFile(document.uri);
+                    const workbook = new ExcelJS.Workbook();
+                    await workbook.xlsx.load(buffer as any);
+                    const worksheet = workbook.getWorksheet(1);
+                    if (worksheet) {
+                        worksheet.eachRow({ includeEmpty: true }, (row, _rowNumber) => {
+                            const rowArray = Array.isArray(row.values) ? row.values.slice(1) : [];
+                            data.push(rowArray.map(v => (v && typeof v === 'object' && 'result' in v) ? v.result : v));
+                        });
+                    }
+                    detectedType = 'Excel (XLSX)';
+                } else if (ext === '.json' || ext === '.jsonl') {
+                    const content = document.getText().trim();
+                    if (!content) {
+                        data = [['Empty File']];
                     } else {
-                        parsed = JSON.parse(content);
-                        if (!Array.isArray(parsed)) {
-                            parsed = [parsed];
+                        let parsed;
+                        if (ext === '.jsonl') {
+                            parsed = content.split('\n').filter(line => line.trim()).map(line => JSON.parse(line));
+                            detectedType = 'JSONL';
+                        } else {
+                            parsed = JSON.parse(content);
+                            detectedType = 'JSON';
+                            if (!Array.isArray(parsed)) {
+                                originalFormat = 'object';
+                                parsed = [parsed];
+                            }
+                        }
+
+                        if (parsed.length > 0) {
+                            if (originalFormat === 'object') {
+                                const obj = parsed[0];
+                                if (typeof obj !== 'object' || obj === null) {
+                                    originalFormat = 'primitive';
+                                    data = [['Value'], [obj]];
+                                } else {
+                                    data = [['Key', 'Value']];
+                                    Object.keys(obj).forEach(k => {
+                                        let val = obj[k];
+                                        if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
+                                        data.push([k, val]);
+                                    });
+                                }
+                            } else {
+                                const allKeys = new Set<string>();
+                                parsed.forEach((obj: any) => {
+                                    if (typeof obj === 'object' && obj !== null) {
+                                        Object.keys(obj).forEach(k => allKeys.add(k));
+                                    }
+                                });
+                                const headers = Array.from(allKeys);
+                                if (headers.length === 0) {
+                                    data = [['Value'], ...parsed.map((v: any) => [typeof v === 'object' ? JSON.stringify(v) : v])];
+                                } else {
+                                    data = [headers];
+                                    parsed.forEach((obj: any) => {
+                                        data.push(headers.map(h => {
+                                            const val = obj ? obj[h] : undefined;
+                                            return (typeof val === 'object' && val !== null) ? JSON.stringify(val) : val;
+                                        }));
+                                    });
+                                }
+                            }
                         }
                     }
+                } else if (ext === '.xml') {
+                    const content = document.getText();
+                    const parser = new XMLParser();
+                    const jsonObj = parser.parse(content);
+                    detectedType = 'XML';
+                    
+                    // Recursive function to find the first array
+                    const findArray = (obj: any): any[] | null => {
+                        if (Array.isArray(obj)) return obj;
+                        if (typeof obj !== 'object' || obj === null) return null;
+                        for (const key of Object.keys(obj)) {
+                            const res = findArray(obj[key]);
+                            if (res) return res;
+                        }
+                        return null;
+                    };
 
-                    if (parsed.length > 0) {
+                    const items = findArray(jsonObj);
+                    if (items && items.length > 0) {
                         const allKeys = new Set<string>();
-                        parsed.forEach((obj: any) => {
-                            if (typeof obj === 'object' && obj !== null) {
-                                Object.keys(obj).forEach(k => allKeys.add(k));
+                        items.forEach(item => {
+                            if (typeof item === 'object' && item !== null) {
+                                Object.keys(item).forEach(k => allKeys.add(k));
                             }
                         });
                         const headers = Array.from(allKeys);
-                        if (headers.length === 0 && typeof parsed[0] !== 'object') {
-                            // Handle array of primitives
-                            headers.push('Value');
-                            data = [headers, ...parsed.map(v => [v])];
-                        } else {
+                        if (headers.length > 0) {
                             data = [headers];
-                            parsed.forEach((obj: any) => {
-                                data.push(headers.map(h => {
-                                    const val = obj[h];
-                                    return (typeof val === 'object' && val !== null) ? JSON.stringify(val) : val;
-                                }));
-                            });
+                            items.forEach((item: any) => data.push(headers.map(h => item[h])));
+                        } else {
+                            data = [['Value'], ...items.map(i => [i])];
+                        }
+                    } else if (jsonObj) {
+                        originalFormat = 'object';
+                        data = [['Key', 'Value']];
+                        const root = Object.values(jsonObj)[0] as any;
+                        if (root && typeof root === 'object') {
+                            Object.keys(root).forEach(k => data.push([k, typeof root[k] === 'object' ? JSON.stringify(root[k]) : root[k]]));
                         }
                     }
-                } catch (e: any) {
-                    webviewPanel.webview.postMessage({ type: 'error', message: 'JSON Parse Error: ' + e.message });
-                    return;
-                }
-            }
- else if (ext === '.xml') {
-                try {
-                    const parser = new XMLParser();
-                    const jsonObj = parser.parse(content);
-                    // Find first array-like structure
-                    const key = Object.keys(jsonObj)[0];
-                    const items = Array.isArray(jsonObj[key]) ? jsonObj[key] : [jsonObj[key]];
-                    if (items.length > 0) {
-                        const headers = Object.keys(items[0]);
-                        data = [headers];
-                        items.forEach((item: any) => data.push(headers.map(h => item[h])));
-                    }
-                } catch (e) {
-                    console.error('Failed to parse XML:', e);
-                }
-            } else if (ext === '.yaml' || ext === '.yml') {
-                try {
+                } else if (ext === '.yaml' || ext === '.yml') {
+                    const content = document.getText();
                     const parsed: any = yaml.load(content);
+                    detectedType = 'YAML';
                     if (Array.isArray(parsed) && parsed.length > 0) {
-                        const headers = Object.keys(parsed[0]);
+                        const allKeys = new Set<string>();
+                        parsed.forEach(obj => {
+                            if (typeof obj === 'object' && obj !== null) Object.keys(obj).forEach(k => allKeys.add(k));
+                        });
+                        const headers = Array.from(allKeys);
                         data = [headers];
                         parsed.forEach(obj => data.push(headers.map(h => obj[h])));
+                    } else if (parsed && typeof parsed === 'object') {
+                        originalFormat = 'object';
+                        data = [['Key', 'Value']];
+                        Object.keys(parsed).forEach(k => {
+                            let val = parsed[k];
+                            if (typeof val === 'object' && val !== null) val = JSON.stringify(val);
+                            data.push([k, val]);
+                        });
+                    } else if (parsed !== undefined) {
+                        originalFormat = 'primitive';
+                        data = [['Value'], [parsed]];
                     }
-                } catch (e) {
-                    console.error('Failed to parse YAML:', e);
                 }
+            } catch (e: any) {
+                webviewPanel.webview.postMessage({ type: 'error', message: `Parse Error: ${e.message}` });
+                return;
             }
 
             webviewPanel.webview.postMessage({
                 type: 'update',
                 data: data,
-                filename: path.basename(document.uri.fsPath)
+                filename: path.basename(document.uri.fsPath),
+                originalFormat: originalFormat,
+                info: { type: detectedType, rows: data.length > 0 ? data.length - 1 : 0 }
             });
         }
 
@@ -141,62 +202,110 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
         webviewPanel.webview.onDidReceiveMessage(async e => {
             switch (e.type) {
                 case 'save':
-                    const updatedData: any[][] = e.data;
-                    const ext = path.extname(document.uri.fsPath).toLowerCase();
-                    let newContent: string = '';
+                    try {
+                        const updatedData: any[][] = e.data;
+                        const originalFormat = e.originalFormat || 'array';
+                        const ext = path.extname(document.uri.fsPath).toLowerCase();
+                        let newContent: string | Uint8Array = '';
 
-                    if (ext === '.csv' || ext === '.tsv') {
-                        newContent = Papa.unparse(updatedData, { delimiter: ext === '.tsv' ? '\t' : ',' });
-                    } else if (ext === '.xlsx') {
-                        const workbook = new ExcelJS.Workbook();
-                        const worksheet = workbook.addWorksheet('Sheet1');
-                        updatedData.forEach(row => worksheet.addRow(row));
-                        const buffer = await workbook.xlsx.writeBuffer();
-                        fs.writeFileSync(document.uri.fsPath, buffer as any);
-                        return; // Done for XLSX
-                    } else if (ext === '.json' || ext === '.jsonl') {
-                        if (ext === '.jsonl') {
-                            const headers = updatedData[0];
-                            newContent = updatedData.slice(1).map(row => {
+                        if (ext === '.csv' || ext === '.tsv') {
+                            newContent = Papa.unparse(updatedData, { delimiter: ext === '.tsv' ? '\t' : ',' });
+                        } else if (ext === '.xlsx') {
+                            const workbook = new ExcelJS.Workbook();
+                            const worksheet = workbook.addWorksheet('Sheet1');
+                            updatedData.forEach(row => {
+                                worksheet.addRow(row.map(cell => {
+                                    if (cell === 'true') return true;
+                                    if (cell === 'false') return false;
+                                    if (!isNaN(Number(cell)) && cell !== '') return Number(cell);
+                                    return cell;
+                                }));
+                            });
+                            const buffer = await workbook.xlsx.writeBuffer();
+                            await vscode.workspace.fs.writeFile(document.uri, new Uint8Array(buffer));
+                            return;
+                        } else if (ext === '.json' || ext === '.jsonl') {
+                            let output: any;
+                            if (originalFormat === 'primitive') {
+                                output = updatedData[1] ? updatedData[1][0] : null;
+                                if (!isNaN(Number(output)) && output !== '') output = Number(output);
+                                else if (output === 'true') output = true;
+                                else if (output === 'false') output = false;
+                            } else if (originalFormat === 'object') {
                                 const obj: any = {};
-                                headers.forEach((h, i) => obj[h] = row[i]);
-                                return JSON.stringify(obj);
-                            }).join('\n');
-                        } else {
+                                updatedData.slice(1).forEach(row => {
+                                    const key = row[0];
+                                    let val = row[1];
+                                    if (val === 'true') val = true;
+                                    else if (val === 'false') val = false;
+                                    else if (!isNaN(Number(val)) && val !== '') val = Number(val);
+                                    else { try { val = JSON.parse(val); } catch {} }
+                                    if (key) obj[key] = val;
+                                });
+                                output = obj;
+                            } else {
+                                const headers = updatedData[0];
+                                output = updatedData.slice(1).map(row => {
+                                    const obj: any = {};
+                                    headers.forEach((h, i) => {
+                                        let val = row[i];
+                                        if (val === 'true') val = true;
+                                        else if (val === 'false') val = false;
+                                        else if (!isNaN(Number(val)) && val !== '') val = Number(val);
+                                        else { try { val = JSON.parse(val); } catch {} }
+                                        obj[h] = val;
+                                    });
+                                    return obj;
+                                });
+                            }
+                            if (ext === '.jsonl') {
+                                newContent = Array.isArray(output) ? output.map(obj => JSON.stringify(obj)).join('\n') : JSON.stringify(output);
+                            } else {
+                                newContent = JSON.stringify(output, null, 2);
+                            }
+                        } else if (ext === '.xml') {
+                            // Saving XML is complex due to structure loss. We'll use a basic approach.
                             const headers = updatedData[0];
-                            const jsonArray = updatedData.slice(1).map(row => {
+                            const items = updatedData.slice(1).map(row => {
                                 const obj: any = {};
                                 headers.forEach((h, i) => obj[h] = row[i]);
                                 return obj;
                             });
-                            newContent = JSON.stringify(jsonArray, null, 2);
+                            const { XMLBuilder } = require('fast-xml-parser');
+                            const builder = new XMLBuilder({ format: true });
+                            newContent = builder.build({ root: { item: items } });
+                        } else if (ext === '.yaml' || ext === '.yml') {
+                            let output: any;
+                            if (originalFormat === 'primitive') {
+                                output = updatedData[1] ? updatedData[1][0] : null;
+                            } else if (originalFormat === 'object') {
+                                const obj: any = {};
+                                updatedData.slice(1).forEach(row => { if (row[0]) obj[row[0]] = row[1]; });
+                                output = obj;
+                            } else {
+                                const headers = updatedData[0];
+                                output = updatedData.slice(1).map(row => {
+                                    const obj: any = {};
+                                    headers.forEach((h, i) => obj[h] = row[i]);
+                                    return obj;
+                                });
+                            }
+                            newContent = yaml.dump(output);
                         }
-                    } else if (ext === '.xml') {
-                        const headers = updatedData[0];
-                        const items = updatedData.slice(1).map(row => {
-                            const obj: any = {};
-                            headers.forEach((h, i) => obj[h] = row[i]);
-                            return obj;
-                        });
-                        const { XMLBuilder } = require('fast-xml-parser');
-                        const builder = new XMLBuilder({ format: true });
-                        newContent = builder.build({ root: { item: items } });
-                    } else if (ext === '.yaml' || ext === '.yml') {
-                        const headers = updatedData[0];
-                        const items = updatedData.slice(1).map(row => {
-                            const obj: any = {};
-                            headers.forEach((h, i) => obj[h] = row[i]);
-                            return obj;
-                        });
-                        newContent = yaml.dump(items);
-                    }
 
-                    const edit = new vscode.WorkspaceEdit();
-                    edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), newContent);
-                    await vscode.workspace.applyEdit(edit);
+                        if (typeof newContent === 'string') {
+                            const edit = new vscode.WorkspaceEdit();
+                            edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), newContent);
+                            await vscode.workspace.applyEdit(edit);
+                        }
+                    } catch (err: any) {
+                        vscode.window.showErrorMessage(`Failed to save: ${err.message}`);
+                    }
                     break;
             }
         });
+
+
 
         updateWebview();
     }
@@ -220,9 +329,13 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
             </head>
             <body>
                 <div id="toolbar" class="glass">
-                    <button id="saveBtn">Save</button>
-                    <button id="convertBtn">Convert</button>
-                    <input type="text" id="searchBox" placeholder="Search...">
+                    <button id="saveBtn" class="primary">Save</button>
+                    <input type="text" id="searchBox" placeholder="Search data...">
+                    <div class="spacer"></div>
+                    <div id="status-info">
+                        <span id="format-tag"></span>
+                        <span id="row-count"></span>
+                    </div>
                 </div>
                 <div id="grid-container">
                     <table id="spreadsheet-grid"></table>
