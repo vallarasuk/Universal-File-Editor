@@ -5,6 +5,9 @@
     // Make preview editable
     preview.setAttribute('contenteditable', 'true');
 
+    // Signal ready
+    vscode.postMessage({ type: 'ready' });
+
     let debounceTimer;
     preview.addEventListener('input', () => {
         clearTimeout(debounceTimer);

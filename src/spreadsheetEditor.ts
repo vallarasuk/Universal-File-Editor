@@ -201,6 +201,9 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
 
         webviewPanel.webview.onDidReceiveMessage(async e => {
             switch (e.type) {
+                case 'ready':
+                    updateWebview();
+                    break;
                 case 'save':
                     try {
                         const updatedData: any[][] = e.data;
@@ -304,8 +307,6 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                     break;
             }
         });
-
-
 
         updateWebview();
     }

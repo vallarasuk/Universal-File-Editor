@@ -69,6 +69,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
         webviewPanel.webview.onDidReceiveMessage(async e => {
             switch (e.type) {
+                case 'ready':
+                    updateWebview();
+                    break;
                 case 'save':
                     try {
                         const TurndownService = require('turndown');

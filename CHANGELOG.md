@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.0.5] - 2026-05-14
+
+### Fixed
+
+- Resolved initialization race condition where files (especially JSON) wouldn't load on first open.
+- Implemented 'ready' handshake between extension and webviews for reliable data loading.
+- Improved error handling for malformed JSON and XML files.
+
 ## [0.0.4] - 2026-05-14
 
 ### Added

@@ -7,6 +7,9 @@
     let gridData = [];
     let originalFormat = 'array';
 
+    // Signal ready to the extension
+    vscode.postMessage({ type: 'ready' });
+
     window.addEventListener('message', event => {
         const message = event.data;
         switch (message.type) {
