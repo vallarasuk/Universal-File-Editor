@@ -7,9 +7,17 @@
     const rawModeBtn = document.getElementById('rawModeBtn');
     const formatBtn = document.getElementById('formatBtn');
     const copyBtn = document.getElementById('copyBtn');
+    const supportBtn = document.getElementById('supportBtn');
     const rawEditor = document.getElementById('raw-editor');
     const gridContainer = document.getElementById('grid-container');
     const rawContainer = document.getElementById('raw-container');
+    const convertSelect = document.getElementById('convertSelect');
+
+    // Modal elements
+    const supportModal = document.getElementById('supportModal');
+    const closeModal = supportModal.querySelector('.close-modal');
+    const modalCloseBtn = supportModal.querySelector('.modal-close-btn');
+    const copyUpi = document.getElementById('copyUpi');
 
     let gridData = [];
     let originalFormat = 'array';
@@ -141,7 +149,6 @@
             if (currentInfo.type === 'JSON') {
                 rawEditor.value = JSON.stringify(JSON.parse(content), null, 4);
             } else if (currentInfo.type === 'XML') {
-                // Simple XML formatter
                 let formatted = '';
                 let reg = /(>)(<)(\/*)/g;
                 let xml = content.replace(reg, '$1\r\n$2$3');
@@ -152,7 +159,6 @@
                     else if (node.match(/^<\/\w/)) { if (pad != 0) pad -= 1; }
                     else if (node.match(/^<\w[^>]*[^\/]>.*$/)) indent = 1;
                     else indent = 0;
-
                     let padding = '';
                     for (let i = 0; i < pad; i++) padding += '  ';
                     formatted += padding + node + '\r\n';
@@ -170,6 +176,31 @@
         document.execCommand('copy');
         copyBtn.textContent = 'Copied!';
         setTimeout(() => copyBtn.textContent = 'Copy', 2000);
+    };
+
+    // Support Modal Actions
+    supportBtn.onclick = () => supportModal.classList.remove('hidden');
+    closeModal.onclick = () => supportModal.classList.add('hidden');
+    modalCloseBtn.onclick = () => supportModal.classList.add('hidden');
+    copyUpi.onclick = () => {
+        navigator.clipboard.writeText('vallarasuk143@pingpay');
+        copyUpi.textContent = 'Copied!';
+        setTimeout(() => copyUpi.textContent = 'Copy', 2000);
+    };
+
+    // Conversion Logic
+    convertSelect.onchange = () => {
+        const targetFormat = convertSelect.value;
+        if (!targetFormat) return;
+        
+        // Notify backend to convert
+        vscode.postMessage({ 
+            type: 'convert', 
+            target: targetFormat, 
+            data: gridData 
+        });
+        
+        convertSelect.value = ''; // Reset
     };
 
     // Helper Functions
@@ -204,7 +235,7 @@
         const term = searchBox.value.toLowerCase();
         const rows = grid.querySelectorAll('tbody tr');
         rows.forEach((row, i) => {
-            if (row.classList.contains('add-row-tr')) return;
+            if (row.querySelector('.add-row-td')) return;
             const text = row.textContent.toLowerCase();
             row.style.display = text.includes(term) ? '' : 'none';
         });

@@ -205,6 +205,33 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                 case 'ready':
                     updateWebview();
                     break;
+                case 'convert':
+                    try {
+                        const target = e.target;
+                        const data = e.data;
+                        let content = '';
+                        if (target === 'json') content = JSON.stringify(data, null, 2);
+                        else if (target === 'csv') content = Papa.unparse(data);
+                        else if (target === 'yaml') content = yaml.dump(data);
+                        else if (target === 'xml') {
+                            const { XMLBuilder } = require('fast-xml-parser');
+                            const builder = new XMLBuilder({ format: true });
+                            content = builder.build({ root: { item: data.slice(1).map((row: any[]) => {
+                                const obj: any = {};
+                                data[0].forEach((h: string, i: number) => obj[h] = row[i]);
+                                return obj;
+                            }) } });
+                        }
+
+                        const newUri = document.uri.with({ path: document.uri.path.replace(/\.[^.]+$/, `.${target}`) });
+                        await vscode.workspace.fs.writeFile(newUri, Buffer.from(content));
+                        const newDoc = await vscode.workspace.openTextDocument(newUri);
+                        await vscode.window.showTextDocument(newDoc);
+                        vscode.window.showInformationMessage(`Successfully converted to ${target.toUpperCase()}`);
+                    } catch (err: any) {
+                        vscode.window.showErrorMessage(`Conversion failed: ${err.message}`);
+                    }
+                    break;
                 case 'saveRaw':
                     try {
                         const content = e.content;
@@ -330,6 +357,9 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
         const styleUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'media', 'spreadsheet', 'spreadsheet.css')
         ));
+        const qrUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'media', 'support_qr.png')
+        ));
 
         return `
             <!DOCTYPE html>
@@ -345,18 +375,29 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                     <div class="toolbar-group">
                         <button id="saveBtn" class="primary" title="Save Changes (Ctrl+S)">Save</button>
                         <div class="view-toggle">
-                            <button id="gridModeBtn" class="active" title="Switch to Grid View">Grid</button>
-                            <button id="rawModeBtn" title="Switch to Raw View">Raw</button>
+                            <button id="gridModeBtn" class="active">Grid</button>
+                            <button id="rawModeBtn">Raw</button>
                         </div>
                     </div>
                     
+                    <div class="toolbar-group">
+                        <select id="convertSelect" class="glass-select">
+                            <option value="" disabled selected>Convert to...</option>
+                            <option value="json">JSON</option>
+                            <option value="csv">CSV</option>
+                            <option value="yaml">YAML</option>
+                            <option value="xml">XML</option>
+                        </select>
+                    </div>
+
                     <input type="text" id="searchBox" placeholder="Search data...">
                     
                     <div class="spacer"></div>
                     
                     <div class="toolbar-group">
                         <button id="formatBtn" title="Beautify/Format Source">Format</button>
-                        <button id="copyBtn" title="Copy Content to Clipboard">Copy</button>
+                        <button id="copyBtn">Copy</button>
+                        <button id="supportBtn" class="support-heart" title="Support the Developer">❤️</button>
                         <div id="status-info">
                             <span id="format-tag"></span>
                             <span id="row-count"></span>
@@ -370,6 +411,24 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
 
                 <div id="raw-container" class="view-panel hidden">
                     <textarea id="raw-editor" spellcheck="false"></textarea>
+                </div>
+
+                <!-- Support Modal -->
+                <div id="supportModal" class="modal hidden">
+                    <div class="modal-content glass">
+                        <button class="close-modal">×</button>
+                        <h2>Support the Developer</h2>
+                        <p>If you find this extension helpful, consider supporting the developer!</p>
+                        <div class="upi-info">
+                            <strong>UPI ID:</strong> <span>vallarasuk143@pingpay</span>
+                            <button id="copyUpi" class="small-btn">Copy</button>
+                        </div>
+                        <div class="qr-container">
+                            <img src="${qrUri}" alt="UPI QR Code">
+                            <p class="qr-label">Scan to support via UPI</p>
+                        </div>
+                        <button class="modal-close-btn">Close</button>
+                    </div>
                 </div>
 
                 <script src="${scriptUri}"></script>

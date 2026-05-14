@@ -112,6 +112,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         const styleUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'media', 'markdown', 'markdown.css')
         ));
+        const qrUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'media', 'support_qr.png')
+        ));
 
         return `
             <!DOCTYPE html>
@@ -141,14 +144,36 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                     </div>
                     <div class="spacer"></div>
                     <button id="saveBtn" class="primary">Save</button>
+                    <div class="toolbar-group">
+                        <button id="supportBtn" class="support-heart" title="Support the Developer">❤️</button>
+                    </div>
                 </div>
                 <div id="editor-container">
-                    <div id="preview" class="markdown-body"></div>
+                    <div id="preview" class="glass"></div>
                 </div>
+
+                <!-- Support Modal -->
+                <div id="supportModal" class="modal hidden">
+                    <div class="modal-content glass">
+                        <button class="close-modal">×</button>
+                        <h2>Support the Developer</h2>
+                        <p>If you find this extension helpful, consider supporting the developer!</p>
+                        <div class="upi-info">
+                            <strong>UPI ID:</strong> <span>vallarasuk143@pingpay</span>
+                            <button id="copyUpi" class="small-btn">Copy</button>
+                        </div>
+                        <div class="qr-container">
+                            <img src="${qrUri}" alt="UPI QR Code">
+                            <p class="qr-label">Scan to support via UPI</p>
+                        </div>
+                        <button class="modal-close-btn">Close</button>
+                    </div>
+                </div>
+
                 <script src="${scriptUri}"></script>
             </body>
             </html>
         `;
     }
-}
 
+}

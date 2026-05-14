@@ -65,3 +65,21 @@
     });
 })();
 
+
+// Support Modal Logic
+const supportBtn = document.getElementById('supportBtn');
+const supportModal = document.getElementById('supportModal');
+const closeModal = supportModal.querySelector('.close-modal');
+const modalCloseBtn = supportModal.querySelector('.modal-close-btn');
+const copyUpi = document.getElementById('copyUpi');
+
+if (supportBtn) {
+    supportBtn.onclick = () => supportModal.classList.remove('hidden');
+    closeModal.onclick = () => supportModal.classList.add('hidden');
+    modalCloseBtn.onclick = () => supportModal.classList.add('hidden');
+    copyUpi.onclick = () => {
+        navigator.clipboard.writeText('vallarasuk143@pingpay');
+        copyUpi.textContent = 'Copied!';
+        setTimeout(() => copyUpi.textContent = 'Copy', 2000);
+    };
+}

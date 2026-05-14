@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.1.1] - 2026-05-14
+
+### Added
+
+- **Support the Developer**: Integrated a premium support modal with UPI ID and QR code for contributions.
+- **File Conversion System**: Export your data to different formats (JSON, CSV, YAML, XML) with one click.
+- **Enhanced UI**: Improved select menus and modal animations for a more fluid experience.
+
 ## [0.1.0] - 2026-05-14
 
 ### Added
