@@ -2,14 +2,29 @@
 .vscode/**
 .vscode-test/**
 src/**
+out/**/*.map
 tsconfig.json
 publish.sh
 .gitignore
 .vscodeignore
-universal-spreadsheet-markdown-editor-*.vsix
+test-formats.ts
+README.md
+CHANGELOG.md
+
+# Ignore all devDependencies
 node_modules/@types/**
 node_modules/@typescript-eslint/**
 node_modules/eslint/**
 node_modules/typescript/**
 node_modules/ovsx/**
 node_modules/vsce/**
+node_modules/ts-node/**
+node_modules/.bin/**
+node_modules/fast-xml-parser/node_modules/**
+
+# Only keep essential files in the VSIX
+!out/**/*.js
+!media/**
+!node_modules/**
+!package.json
+!LICENSE.txt
