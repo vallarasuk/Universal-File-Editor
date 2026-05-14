@@ -35,11 +35,16 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             typographer: true
         });
 
+        const fs = require('fs');
         function updateWebview() {
             const content = document.getText();
+            const stats = fs.statSync(document.uri.fsPath);
+            const fileSize = (stats.size / 1024).toFixed(2) + ' KB';
+            const lineCount = document.lineCount;
+
             let rendered = md.render(content);
             
-            // Basic KaTex math rendering (simple regex for demonstration)
+            // Basic KaTex math rendering
             rendered = rendered.replace(/\$\$(.*?)\$\$/g, (_match, formula) => {
                 try {
                     return require('katex').renderToString(formula, { displayMode: true });
@@ -57,7 +62,12 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
             webviewPanel.webview.postMessage({
                 type: 'update',
-                content: rendered
+                content: rendered,
+                info: {
+                    name: path.basename(document.uri.fsPath),
+                    size: fileSize,
+                    lines: lineCount
+                }
             });
         }
 
@@ -115,6 +125,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         const qrUri = webview.asWebviewUri(vscode.Uri.file(
             path.join(this.context.extensionPath, 'media', 'support_qr.png')
         ));
+        const overviewBannerUri = webview.asWebviewUri(vscode.Uri.file(
+            path.join(this.context.extensionPath, 'media', 'overview_banner.png')
+        ));
 
         return `
             <!DOCTYPE html>
@@ -145,6 +158,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                     <div class="spacer"></div>
                     <button id="saveBtn" class="primary">Save</button>
                     <div class="toolbar-group">
+                        <button id="overviewBtn" title="File Overview">ℹ️ Overview</button>
                         <button id="supportBtn" class="support-heart" title="Support the Developer">❤️</button>
                     </div>
                 </div>
@@ -159,7 +173,7 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                         <h2>Support the Developer</h2>
                         <p>If you find this extension helpful, consider supporting the developer!</p>
                         <div class="upi-info">
-                            <strong>UPI ID:</strong> <span>vallarasuk143@pingpay</span>
+                            <strong>UPI ID:</strong> <span id="upiId">vallarasuk143@pingpay</span>
                             <button id="copyUpi" class="small-btn">Copy</button>
                         </div>
                         <div class="qr-container">
@@ -167,6 +181,34 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                             <p class="qr-label">Scan to support via UPI</p>
                         </div>
                         <button class="modal-close-btn">Close</button>
+                    </div>
+                </div>
+
+                <!-- Overview Modal -->
+                <div id="overviewModal" class="modal hidden">
+                    <div class="modal-content glass overview-modal">
+                        <button class="close-modal">×</button>
+                        <div class="overview-banner" style="background-image: url('${overviewBannerUri}')"></div>
+                        <h2>File Overview</h2>
+                        <div class="overview-grid">
+                            <div class="overview-item">
+                                <label>File Name</label>
+                                <span id="ov-filename">-</span>
+                            </div>
+                            <div class="overview-item">
+                                <label>File Type</label>
+                                <span id="ov-type">Markdown</span>
+                            </div>
+                            <div class="overview-item">
+                                <label>File Size</label>
+                                <span id="ov-size">-</span>
+                            </div>
+                            <div class="overview-item">
+                                <label>Line Count</label>
+                                <span id="ov-lines">-</span>
+                            </div>
+                        </div>
+                        <button class="modal-close-btn">Done</button>
                     </div>
                 </div>
 
