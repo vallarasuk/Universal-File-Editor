@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.1.4] - 2026-05-19
+
+### Fixed
+
+- **VSIX Size Optimization**: Configured `.vscodeignore` to exclude duplicate, test, markdown, and documentation files within `node_modules` dependency folders. This resulted in a **50% size reduction** (from 13.4MB to 6.8MB) and a reduction in VSIX file count by almost 2,000 files.
+- **Packaged Changelog**: Included `CHANGELOG.md` in the published package so the release notes are visible in the extension's marketplace page.
+
+## [0.1.3] - 2026-05-19
+
+### Added
+
+- **Git & Folder Bypassing**: Custom editors now automatically bypass Git tracking files/folders (e.g. URI schemes `git`, `gitlens`, `vscode-local-history` or paths containing `.git/`, `node_modules/`), falling back seamlessly to VS Code's default editor.
+- **Customization Settings**:
+  - `xlsxViewer.disableTextViewer`: Allows completely disabling the Premium Text Viewer.
+  - `xlsxViewer.excludeSchemes`: Customize URI schemes that should bypass custom editors.
+  - `xlsxViewer.excludePaths`: Customize glob patterns or path substrings to bypass.
+
+### Fixed
+
+- **Memory Leak in Text Viewer**: Properly dispose of the document change subscription when the text viewer webview panel is closed.
+- **Cursor Jumping in Text Viewer**: Prevent content update resets when the text viewer editor is focused.
+- **Spreadsheet Autosave Support**: Fully support automatic saving to disk for CSV, TSV, JSON, JSONL, XML, and YAML file updates when `xlsxViewer.autoSave` is enabled.
+
 ## [0.1.2] - 2026-05-14
 
 ### Added

@@ -8,8 +8,6 @@ publish.sh
 .gitignore
 .vscodeignore
 test-formats.ts
-README.md
-CHANGELOG.md
 
 # Ignore all devDependencies
 node_modules/@types/**
@@ -25,6 +23,42 @@ node_modules/fast-xml-parser/node_modules/**
 # Only keep essential files in the VSIX
 !out/**/*.js
 !media/**
-!node_modules/**
 !package.json
 !LICENSE.txt
+
+# Exclude unnecessary files from node_modules to optimize size and file count
+node_modules/**/*.map
+node_modules/**/*.ts
+node_modules/**/*.d.ts
+node_modules/**/*.md
+node_modules/**/*.markdown
+node_modules/**/*.txt
+node_modules/**/*.yml
+node_modules/**/*.yaml
+node_modules/**/test/**
+node_modules/**/tests/**
+node_modules/**/example/**
+node_modules/**/examples/**
+node_modules/**/docs/**
+node_modules/**/doc/**
+node_modules/**/website/**
+node_modules/**/bench/**
+node_modules/**/tsconfig.json
+node_modules/**/tslint.json
+node_modules/**/jsdoc.json
+node_modules/**/bower.json
+node_modules/**/gulpfile.js
+node_modules/**/Makefile
+node_modules/**/CMakeLists.txt
+node_modules/**/.github/**
+node_modules/**/.travis.yml
+node_modules/**/.editorconfig
+node_modules/**/.npmignore
+node_modules/**/.eslintrc*
+node_modules/**/.jshintrc
+node_modules/**/.prettierrc*
+node_modules/**/package-lock.json
+node_modules/**/yarn.lock
+node_modules/**/pnpm-lock.yaml
+node_modules/**/*.flow
+node_modules/**/*.patch

@@ -2,7 +2,7 @@
   "name": "universal-spreadsheet-markdown-editor",
   "displayName": "Universal Spreadsheet & Markdown Editor (XLSX, CSV, TSV)",
   "description": "Unified spreadsheet and markdown editor for XLSX, CSV, TSV, and Markdown files with premium design and Google Sheets-style editing.",
-  "version": "0.1.2",
+  "version": "0.1.4",
   "publisher": "VallarasuKanthasamy",
   "icon": "media/icon.png",
   "license": "MIT",
@@ -145,6 +145,38 @@
           "type": "boolean",
           "default": true,
           "description": "Keep the first row fixed at the top while scrolling."
+        },
+        "xlsxViewer.disableTextViewer": {
+          "type": "boolean",
+          "default": false,
+          "description": "Disable the Premium Text Viewer custom editor completely."
+        },
+        "xlsxViewer.excludeSchemes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "git",
+            "gitlens",
+            "gitlens-git",
+            "gitfs",
+            "vscode-local-history",
+            "pr",
+            "review"
+          ],
+          "description": "URI schemes to exclude from opening with custom editors (e.g., git, gitlens, vscode-local-history)."
+        },
+        "xlsxViewer.excludePaths": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "**/.git/**",
+            "**/node_modules/**"
+          ],
+          "description": "Glob patterns or path substrings to exclude from opening with custom editors."
         }
       }
     }

@@ -1,4 +1,5 @@
 import * as vscode from 'vscode';
+import { shouldBypass } from './bypass';
 
 export class MediaViewerProvider implements vscode.CustomReadonlyEditorProvider {
 
@@ -26,6 +27,12 @@ export class MediaViewerProvider implements vscode.CustomReadonlyEditorProvider 
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
+        if (shouldBypass(document.uri, 'mediaViewer')) {
+            webviewPanel.dispose();
+            await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', webviewPanel.viewColumn);
+            return;
+        }
+
         webviewPanel.webview.options = {
             enableScripts: true,
         };

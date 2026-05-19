@@ -1,5 +1,6 @@
     import * as vscode from 'vscode';
 import * as path from 'path';
+import { shouldBypass } from './bypass';
 
 export class TextViewerProvider implements vscode.CustomTextEditorProvider {
 
@@ -19,6 +20,12 @@ export class TextViewerProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
+        if (shouldBypass(document.uri, 'textViewer')) {
+            webviewPanel.dispose();
+            await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', webviewPanel.viewColumn);
+            return;
+        }
+
         webviewPanel.webview.options = {
             enableScripts: true,
         };
@@ -115,7 +122,9 @@ export class TextViewerProvider implements vscode.CustomTextEditorProvider {
                         const message = event.data;
                         if (message.type === 'update') {
                             document.getElementById('title').textContent = message.filename;
-                            content.innerText = message.text;
+                            if (document.activeElement !== content) {
+                                content.innerText = message.text;
+                            }
                         }
                     });
                 </script>
@@ -128,13 +137,20 @@ export class TextViewerProvider implements vscode.CustomTextEditorProvider {
                 const edit = new vscode.WorkspaceEdit();
                 edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), e.text);
                 await vscode.workspace.applyEdit(edit);
+                if (vscode.workspace.getConfiguration('xlsxViewer').get('autoSave', true)) {
+                    await document.save();
+                }
             }
         });
 
-        vscode.workspace.onDidChangeTextDocument(e => {
+        const changeDocumentSubscription = vscode.workspace.onDidChangeTextDocument(e => {
             if (e.document.uri.toString() === document.uri.toString()) {
                 updateWebview();
             }
+        });
+
+        webviewPanel.onDidDispose(() => {
+            changeDocumentSubscription.dispose();
         });
 
         updateWebview();
