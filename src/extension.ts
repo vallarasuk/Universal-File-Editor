@@ -5,6 +5,7 @@ import { MediaViewerProvider } from './mediaViewer';
 import { TextViewerProvider } from './textViewer';
 
 export function activate(context: vscode.ExtensionContext) {
+    console.log('🚀 Universal File Editor activated! Support the developer: vallarasuk143@pingpay');
     // Register Providers
     context.subscriptions.push(SpreadsheetEditorProvider.register(context));
     context.subscriptions.push(MarkdownEditorProvider.register(context));

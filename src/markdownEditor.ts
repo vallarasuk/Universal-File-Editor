@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
 import MarkdownIt from 'markdown-it';
+import { shouldBypass } from './bypass';
 
 export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
 
@@ -20,6 +21,12 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
+        if (shouldBypass(document.uri, 'markdownEditor')) {
+            webviewPanel.dispose();
+            await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', webviewPanel.viewColumn);
+            return;
+        }
+
         webviewPanel.webview.options = {
             enableScripts: true,
             localResourceRoots: [
@@ -101,6 +108,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                         const edit = new vscode.WorkspaceEdit();
                         edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), markdown);
                         await vscode.workspace.applyEdit(edit);
+                        if (vscode.workspace.getConfiguration('xlsxViewer').get('autoSave', true)) {
+                            await document.save();
+                        }
                     } catch (err: any) {
                         vscode.window.showErrorMessage(`Failed to save markdown: ${err.message}`);
                     }

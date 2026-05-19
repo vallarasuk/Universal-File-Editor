@@ -4,6 +4,7 @@ import * as ExcelJS from 'exceljs';
 import * as Papa from 'papaparse';
 import * as yaml from 'js-yaml';
 import { XMLParser } from 'fast-xml-parser';
+import { shouldBypass } from './bypass';
 
 export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvider {
 
@@ -23,6 +24,12 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
         webviewPanel: vscode.WebviewPanel,
         _token: vscode.CancellationToken
     ): Promise<void> {
+        if (shouldBypass(document.uri, 'spreadsheetEditor')) {
+            webviewPanel.dispose();
+            await vscode.commands.executeCommand('vscode.openWith', document.uri, 'default', webviewPanel.viewColumn);
+            return;
+        }
+
         webviewPanel.webview.options = {
             enableScripts: true,
             localResourceRoots: [
@@ -348,6 +355,9 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                             const edit = new vscode.WorkspaceEdit();
                             edit.replace(document.uri, new vscode.Range(0, 0, document.lineCount, 0), newContent);
                             await vscode.workspace.applyEdit(edit);
+                            if (vscode.workspace.getConfiguration('xlsxViewer').get('autoSave', true)) {
+                                await document.save();
+                            }
                         }
                     } catch (err: any) {
                         vscode.window.showErrorMessage(`Failed to save: ${err.message}`);

@@ -1,5 +1,7 @@
 # Universal File Editor (XLSX, CSV, Markdown, JSON, XML, YAML)
 
+![Overview Banner](media/overview_banner.png)
+
 Transform VS Code into a powerful, unified workspace for viewing and editing **any** file format with a premium, glassmorphism-styled interface.
 
 ## 🚀 Key Features
@@ -34,6 +36,26 @@ Supports **XLSX, CSV, TSV, JSON, JSONL, XML, and YAML** with a single, high-perf
 This extension is set as the **default editor** for all supported formats. Simply click a file in the explorer to open it in the Universal Editor.
 
 - To use the standard text editor, right-click and select **"Open With -> Text Editor"**.
+
+### ⚙️ Customization & Git/Folder Bypassing
+
+By default, the custom editors will automatically bypass Git-related tracking files/schemes (like `git://`, `gitlens://`, `vscode-local-history://` etc.) and files inside `.git` or `node_modules` folders, reverting to VS Code's standard text editor so that source control tracking and diff comparison views work perfectly.
+
+You can customize this behavior in VS Code settings:
+
+- `xlsxViewer.disableTextViewer` (default: `false`): Set to `true` to completely disable the Premium Text Viewer custom editor (so that all standard text/log files open in the native text editor).
+- `xlsxViewer.excludeSchemes` (default: `["git", "gitlens", "gitlens-git", "gitfs", "vscode-local-history", "pr", "review"]`): Excludes specific URI schemes from opening in custom editors.
+- `xlsxViewer.excludePaths` (default: `["**/.git/**", "**/node_modules/**"]`): Glob patterns/path substrings to exclude.
+
+## 💖 Support the Developer
+
+If you find this extension helpful and it saves you time, please consider supporting its development!
+
+- **UPI ID**: `vallarasuk143@pingpay`
+
+![Support QR Code](media/support_qr.png)
+
+Thank you for your support!
 
 ## 📜 License
 
