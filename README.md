@@ -1,6 +1,6 @@
 # Universal File Editor (XLSX, CSV, Markdown, JSON, XML, YAML)
 
-![Overview Banner](media/overview_banner.png)
+![Overview Banner](https://raw.githubusercontent.com/vallarasuk/Universal-File-Editor/main/media/overview_banner.png)
 
 Transform VS Code into a powerful, unified workspace for viewing and editing **any** file format with a premium, glassmorphism-styled interface.
 
@@ -53,7 +53,7 @@ If you find this extension helpful and it saves you time, please consider suppor
 
 - **UPI ID**: `vallarasuk143@pingpay`
 
-![Support QR Code](media/support_qr.png)
+![Support QR Code](https://raw.githubusercontent.com/vallarasuk/Universal-File-Editor/main/media/support_qr.png)
 
 Thank you for your support!
 

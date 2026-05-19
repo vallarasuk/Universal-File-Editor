@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.1.5] - 2026-05-19
+
+### Fixed
+
+- **Broken Images on Marketplace**: Corrected the repository URL in `package.json` to reference `https://github.com/vallarasuk/Universal-File-Editor.git` and updated the README images to use absolute raw GitHub URLs.
+
 ## [0.1.4] - 2026-05-19
 
 ### Fixed
