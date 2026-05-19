@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.1.7] - 2026-05-19
+
+### Fixed
+
+- **Overview Banner**: Cropped excessive top and bottom spacing from the overview banner image to fit better in the marketplace.
+
+## [0.1.6] - 2026-05-19
+
+### Changed
+
+- **Version Bump**: Package version synchronization.
+
 ## [0.1.5] - 2026-05-19
 
 ### Fixed
