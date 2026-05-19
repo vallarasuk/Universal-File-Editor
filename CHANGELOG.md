@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4] - 2026-05-19
+
+### Fixed
+
+- **VSIX Size Optimization**: Configured `.vscodeignore` to exclude duplicate, test, markdown, and documentation files within `node_modules` dependency folders. This resulted in a **50% size reduction** (from 13.4MB to 6.8MB) and a reduction in VSIX file count by almost 2,000 files.
+- **Packaged Changelog**: Included `CHANGELOG.md` in the published package so the release notes are visible in the extension's marketplace page.
+
 ## [0.1.3] - 2026-05-19
 
 ### Added
