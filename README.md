@@ -31,6 +31,32 @@ Supports **XLSX, CSV, TSV, JSON, JSONL, XML, and YAML** with a single, high-perf
 - **Glassmorphism Design**: A stunning, translucent interface for all other file types (`.txt`, `.log`, `.conf`, `.env`, etc.).
 - **Enhanced Readability**: Optimized typography and spacing for developer logs and configuration files.
 
+## 🔄 Architecture & Flow Diagram
+
+Here is a high-level overview of how the Universal File Editor processes files seamlessly within VS Code:
+
+```mermaid
+flowchart TD
+    A[User Opens File] --> B{Check URI & Path (Bypass Logic)}
+    B -- Bypass matched (e.g. .git, gitlens) --> C[Open with Default VS Code Editor]
+    B -- No bypass --> D{File Extension/Type}
+    
+    D -- Data Files (.xlsx, .csv, .json, .xml, .yaml) --> E[Spreadsheet Editor]
+    D -- Markdown (.md) --> F[Markdown Editor]
+    D -- Media (.png, .jpg, .svg) --> G[Media Viewer]
+    D -- Other Text Files --> H[Premium Text Viewer]
+    
+    E --> I[Parse Data into Generic Array/Grid]
+    F --> J[Parse Markdown to HTML/KaTeX]
+    
+    I --> K[Render Interactive Glassmorphism Webview]
+    J --> K
+    
+    K <--> L[User Edits Data]
+    L --> M[Auto-Serialize Back to Original Format]
+    M --> N[Save File via VS Code Workspace Edit]
+```
+
 ## 🛠️ Usage
 
 This extension is set as the **default editor** for all supported formats. Simply click a file in the explorer to open it in the Universal Editor.

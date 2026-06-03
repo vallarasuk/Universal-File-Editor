@@ -187,9 +187,13 @@ export class SpreadsheetEditorProvider implements vscode.CustomTextEditorProvide
                 return;
             }
 
-            const fs = require('fs');
-            const stats = fs.statSync(document.uri.fsPath);
-            const fileSize = (stats.size / 1024).toFixed(2) + ' KB';
+            let fileSize = 'Unknown Size';
+            try {
+                const stats = await vscode.workspace.fs.stat(document.uri);
+                fileSize = (stats.size / 1024).toFixed(2) + ' KB';
+            } catch (err) {
+                // Ignore stat errors for virtual or unsaved files
+            }
 
             webviewPanel.webview.postMessage({
                 type: 'update',
