@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.9] - 2026-06-03
+
+### Fixed
+
+- **Webview Loading Issue**: Resolved perpetual loading state in Markdown and Spreadsheet editors caused by duplicate acquisition of VS Code API.
+- **Error Handling**: Implemented robust error trapping in both webviews to catch and report runtime errors directly via VS Code notifications.
+- **package.json Config**: Fixed syntax errors and wildcard selectors in custom editor activation and selector configurations.
+
 ## [0.1.7] - 2026-05-19
 
 ### Fixed

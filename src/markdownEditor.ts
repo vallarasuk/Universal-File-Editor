@@ -93,6 +93,9 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
                 case 'ready':
                     updateWebview();
                     break;
+                case 'error':
+                    vscode.window.showErrorMessage(`Markdown Editor Error: ${e.message}`);
+                    break;
                 case 'save':
                     try {
                         const TurndownService = require('turndown');
@@ -149,6 +152,22 @@ export class MarkdownEditorProvider implements vscode.CustomTextEditorProvider {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <script>
+                    const vscode = acquireVsCodeApi();
+                    window.vscode = vscode;
+                    window.addEventListener('error', event => {
+                        vscode.postMessage({
+                            type: 'error',
+                            message: event.message + ' at ' + event.filename + ':' + event.lineno + ':' + event.colno
+                        });
+                    });
+                    window.addEventListener('unhandledrejection', event => {
+                        vscode.postMessage({
+                            type: 'error',
+                            message: 'Unhandled promise rejection: ' + event.reason
+                        });
+                    });
+                </script>
                 <link href="${styleUri}" rel="stylesheet">
                 <title>Markdown Editor</title>
             </head>

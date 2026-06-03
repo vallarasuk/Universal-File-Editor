@@ -1,5 +1,5 @@
 (function() {
-    const vscode = acquireVsCodeApi();
+    const vscode = window.vscode || acquireVsCodeApi();
     const preview = document.getElementById('preview');
 
     // Make preview editable

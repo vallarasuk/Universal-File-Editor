@@ -1,5 +1,5 @@
 (function() {
-    const vscode = acquireVsCodeApi();
+    const vscode = window.vscode || acquireVsCodeApi();
     const grid = document.getElementById('spreadsheet-grid');
     const searchBox = document.getElementById('searchBox');
     const saveBtn = document.getElementById('saveBtn');
