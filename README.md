@@ -37,9 +37,9 @@ Here is a high-level overview of how the Universal File Editor processes files s
 
 ```mermaid
 flowchart TD
-    A[User Opens File] --> B{Check URI & Path (Bypass Logic)}
+    A[User Opens File] --> B{"Check URI & Path (Bypass Logic)"}
     B -- Bypass matched (e.g. .git, gitlens) --> C[Open with Default VS Code Editor]
-    B -- No bypass --> D{File Extension/Type}
+    B -- No bypass --> D{"File Extension/Type"}
     
     D -- Data Files (.xlsx, .csv, .json, .xml, .yaml) --> E[Spreadsheet Editor]
     D -- Markdown (.md) --> F[Markdown Editor]
