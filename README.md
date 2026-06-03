@@ -83,6 +83,11 @@ If you find this extension helpful and it saves you time, please consider suppor
 
 Thank you for your support!
 
+## 🛠️ Recent Fixes (v0.1.8)
+
+- **Fix Webview Loading Issues**: Resolved a perpetual "loading" state when opening Markdown and Spreadsheet editors by correcting the VS Code API instantiation.
+- **Improved Error Logging**: Error diagnostics are now forwarded from the webview context to VS Code notification windows.
+
 ## 📜 License
 
 MIT

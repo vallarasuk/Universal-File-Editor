@@ -18,7 +18,12 @@
     "Formatters",
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCustomEditor:xlsxViewer.spreadsheetEditor",
+    "onCustomEditor:xlsxViewer.mediaViewer",
+    "onCustomEditor:xlsxViewer.textViewer",
+    "onCustomEditor:xlsxViewer.markdownEditor"
+  ],
   "main": "./out/extension.js",
   "contributes": {
     "customEditors": [
@@ -99,9 +104,6 @@
           },
           {
             "filenamePattern": "*.ini"
-          },
-          {
-            "filenamePattern": "*"
           }
         ],
         "priority": "option"
